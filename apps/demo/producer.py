@@ -1,4 +1,5 @@
 import random
+import time
 from sys import stdout
 
 from confluent_kafka import Producer
@@ -8,23 +9,11 @@ from confluent_kafka.serialization import (
     IntegerDeserializer,
     StringDeserializer,
 )
-from dotenv import dotenv_values
 
-kafka_config: dict = dotenv_values(".env.kafka")
+from demo.common import BASE_KAFKA_CONFIG, TOPIC_NAME
 
-topic_name = "first-topic"
 
-# config key/value : https://github.com/confluentinc/librdkafka/blob/v2.2.0/CONFIGURATION.md 참고
-producer = Producer(
-    {
-        "bootstrap.servers": "cluster.playground.cdkt.io:9092",
-        "security.protocol": "sasl_ssl",
-        "sasl.username": kafka_config["username"],
-        "sasl.password": kafka_config["password"],
-        "sasl.mechanism": "PLAIN",
-    }
-)
-
+producer = Producer(BASE_KAFKA_CONFIG)
 
 integer_serializer = IntegerSerializer()
 integer_deserializer = IntegerDeserializer()
@@ -67,12 +56,13 @@ def produce():
             producer.poll(5)
             key = random.choice(range(1, 10))
             producer.produce(
-                topic=topic_name,
+                topic=TOPIC_NAME,
                 key=integer_serializer(key),
                 value=string_serializer(f"this-is-{key}"),
                 partition=partitioner(key),
                 on_delivery=delivery_report,
             )
+            time.sleep(3)
     finally:
         producer.flush()
 
