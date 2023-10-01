@@ -8,6 +8,7 @@ consumer = Consumer(
     **{
         "group.id": "first-consumer-group",
         "auto.offset.reset": "earliest",
+        "partition.assignment.strategy": "cooperative-sticky",
     },
 )
 integer_deserializer = IntegerDeserializer()
