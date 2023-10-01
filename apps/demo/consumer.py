@@ -29,8 +29,8 @@ def consume_first_topic():
             #  If no records are received before this timeout expires, then poll() will return an empty record set.
             msg: Message = consumer.poll(timeout=5)
             if not msg:
-                print("Timeout.")
-                return
+                print("No message...")
+                continue
             if err := msg.error():
                 if err.code() == KafkaError._PARTITION_EOF:
                     print(
